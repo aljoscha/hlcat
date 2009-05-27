@@ -36,64 +36,93 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
-#define MAX 100
+//#define DEBUG 1
 
-int main(void)
+#define MAX_LINE 200
+#define MAX_WORD 20
+
+int main(int argc, char **argv)
 {
-    char T[MAX] = "aaaaaaaaabb";
-    char W[MAX] = "aab";
-    int F[MAX] = {-1};
-    int N = strlen(T);
-    int M = strlen(W);
-    int I,J;
-    int FOUND = 0;
-    printf("Knuth, Morris, Pratt\n");
-    printf("T: %s\n", T);
-    printf("N: %d\n", N);
-    printf("W: %s\n", W);
-    printf("M: %d\n", M);
+    char line_buffer[MAX_LINE];         // for reading one line from the input file
+    FILE *file;
+    int fvector[MAX_WORD] = {-1};       // for storing the fault vector
+    char *sword;                         // the search string, will be set to argv[1] later
+    int word_length;
+    int line_length;
+    int i,j;                            // loop vars
 
-    printf("\ncreating fault vector...\n");
-
-    printf("  set F[0] = -1\n");
-    F[0] = -1;
-    printf("  set I = -1\n");
-    I = -1;
-    for(J = 1; J < M; J++)
+    if (argc != 3)
     {
+        printf("hlcat\nCopyright (c) 2009, by Aljoscha Krettek <aljoscha.krettek@googlemail.com>\n");
+        printf("usage: hlcat <word> <filename>\n");
+        exit(1);
+    }
+
+    sword = argv[1];
+    word_length = strlen(sword);
+    
+    if ((file = fopen(argv[2], "r")) == NULL)
+    {
+        printf("error: %s\n", strerror(errno));
+        exit(1);
+    }
+        
+    int FOUND = 0;
+
+#ifdef DEBUG
+    printf("search word: %s\n", sword);
+    printf("search word length: %d\n", word_length);
+    printf("\ncreating fault vector...\n");
+    printf("  set fvector[0] = -1\n");
+    printf("  set i = -1\n");
+#endif
+    fvector[0] = -1;
+    i = -1;
+
+    for(j = 1; j < word_length; j++)
+    {
+#ifdef DEBUG
         printf("-------------\n");
-        printf("    J = %d\n", J);
-        printf("    I = %d\n", I);
-        while (I > -1 && W[I+1] != W[J])
+        printf("    j = %d\n", j);
+        printf("    i = %d\n", i);
+#endif
+        while (i > -1 && sword[i+1] != sword[j])
         {
-            printf("    set I = F[I]: F[I] = %d\n", F[I]);
-            I = F[I];
+#ifdef DEBUG
+            printf("    set i = fvector[i]: fvector[i] = %d\n", fvector[i]);
+#endif
+            i = fvector[i];
         }
-        if (W[I+1] == W[J])
+        if (sword[i+1] == sword[j])
         {
-            printf("    adding one to I\n");
-            I = I+1;
-            printf("    F[%d] = %d\n",J,I);
-            F[J] = I;
+#ifdef DEBUG
+            printf("    adding one to i\n");
+            printf("    fvector[%d] = %d\n",j,i);
+#endif
+            i = i+1;
+            fvector[j] = i;
         }
         else
         {
-            printf("    F[%d] = %d\n",J,-1);
-            F[J] = -1;
+#ifdef DEBUG
+            printf("    fvector[%d] = %d\n",j,-1);
+#endif
+            fvector[j] = -1;
         }
     }
 
-    printf("\nF: [");
-    for(int i = 0; i < M; i++)
+    printf("fvector: [");
+    for(i = 0; i < word_length; i++)
     {
-        if (i == M-1)
-            printf("%d", F[i]);
+        if (i == word_length-1)
+            printf("%d", fvector[i]);
         else
-            printf("%d,", F[i]);
+            printf("%d,", fvector[i]);
     }
     printf("]\n");
-
+/*
     printf("\nsearching...\n");
     printf("  set I = 0\n");
     I = 0;
@@ -127,6 +156,6 @@ int main(void)
             I++;
         }
     }
-
+*/
     return 0;
 }
