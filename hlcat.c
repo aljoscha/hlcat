@@ -113,7 +113,7 @@ int main(int argc, char **argv)
         }
     }
 
-    printf("fvector: [");
+    printf("\033[1;34;38mfvector: [");
     for(i = 0; i < word_length; i++)
     {
         if (i == word_length-1)
@@ -121,7 +121,7 @@ int main(int argc, char **argv)
         else
             printf("%d,", fvector[i]);
     }
-    printf("]\n");
+    printf("]\033[0;;m\n");
 /*
     printf("\nsearching...\n");
     printf("  set I = 0\n");
