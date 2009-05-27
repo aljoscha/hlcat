@@ -46,12 +46,19 @@
 int main(int argc, char **argv)
 {
     char line_buffer[MAX_LINE];         // for reading one line from the input file
+    char print_buffer[MAX_LINE];        // for preparing the printout, and printing it
+                                        // we use strncpy to copy part of the current line there
+                                        // because we want to print the search string in a different
+                                        // color
     FILE *file;
     int fvector[MAX_WORD] = {-1};       // for storing the fault vector
-    char *sword;                         // the search string, will be set to argv[1] later
+    char *sword;                        // the search string, will be set to argv[1] later
     int word_length;
     int line_length;
     int i,j;                            // loop vars
+    int current_scan_start;             // the start of the string we are currently scanning
+                                        // this is used because we continue scanning
+                                        // after we found the search string once in a line
 
     if (argc != 3)
     {
@@ -69,8 +76,6 @@ int main(int argc, char **argv)
         exit(1);
     }
         
-    int FOUND = 0;
-
 #ifdef DEBUG
     printf("search word: %s\n", sword);
     printf("search word length: %d\n", word_length);
@@ -122,40 +127,51 @@ int main(int argc, char **argv)
             printf("%d,", fvector[i]);
     }
     printf("]\033[0;;m\n");
-/*
-    printf("\nsearching...\n");
-    printf("  set I = 0\n");
-    I = 0;
-    printf("  set J = -1\n");
-    J = -1;
-    while (I < N && !FOUND)
+
+    while (!feof(file))
     {
-        printf("-------------\n");
-        printf("    I = %d\n", I);
-        while (J > -1 && W[J+1] != T[I])
+        if (fgets(line_buffer, MAX_LINE, file) == NULL) // might get EOF here
+            break;
+        //printf("%s", line_buffer);
+        line_length = strlen(line_buffer);
+        current_scan_start = 0;
+        i = 0;
+        j = -1;
+        while (i < line_length)
         {
-            printf("        set J = F[J] : %d\n", F[J]);
-            J = F[J];
+            while (j > -1 && sword[j+1] != line_buffer[i])
+            {
+                j = fvector[j];
+            }
+            if (sword[j+1] == line_buffer[i])
+            {
+                j++;
+            }
+            if ( j == word_length-1 )
+            {
+                //printf("\nfound i: %d, j: %d, css: %d\n", i, j, current_scan_start);
+                strncpy(print_buffer, &line_buffer[current_scan_start], i-j-current_scan_start);
+                print_buffer[i-j-current_scan_start] = '\0';
+                printf("%s", print_buffer);
+                strncpy(print_buffer, &line_buffer[i-j], j+1);
+                print_buffer[j+1] = '\0';
+                printf("\033[1;37;41m%s\033[0;;m", print_buffer);
+                i++;
+                j = -1;
+                current_scan_start = i; 
+            }
+            else
+            {
+                i++;
+            }
         }
-        printf("    J = %d\n", J);
-        if (W[J+1] == T[I])
+        if (current_scan_start <= line_length) // maybe there is something left at the end of the string
         {
-            printf("    J++: %d\n", J+1);
-            J++;
-        }
-        if ( J == M-1 )
-        {
-            printf("    found:");
-            I = I - J;
-            printf(" I = %d\n", I);
-            FOUND = 1;
-        }
-        else
-        {
-            printf("    I++: %d\n", I+1);
-            I++;
+            strncpy(print_buffer, &line_buffer[current_scan_start], line_length-current_scan_start);
+            print_buffer[line_length-current_scan_start] = '\0';
+            printf("%s", print_buffer);
         }
     }
-*/
+    fclose(file);
     return 0;
 }
