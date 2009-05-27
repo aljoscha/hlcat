@@ -1,3 +1,3 @@
 
 hlcat : knuth.c
-	gcc knuth.c -o hlcat
+	gcc hlcat.c -o hlcat
