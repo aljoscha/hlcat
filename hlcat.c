@@ -42,8 +42,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <stdarg.h>
 
 //#define DEBUG 1
+inline void dprintf(char *text, ...)
+{
+#ifdef DEBUG
+    va_list list;
+    va_start(list,text);
+    vprintf(text, list);
+    va_end(list);
+#endif
+}
 
 #define MAX_LINE 200
 #define MAX_WORD 20
@@ -81,44 +91,34 @@ int main(int argc, char **argv)
         exit(1);
     }
         
-#ifdef DEBUG
-    printf("search word: %s\n", sword);
-    printf("search word length: %d\n", word_length);
-    printf("\ncreating fault vector...\n");
-    printf("  set fvector[0] = -1\n");
-    printf("  set i = -1\n");
-#endif
+    dprintf("search word: %s\n", sword);
+    dprintf("search word length: %d\n", word_length);
+    dprintf("\ncreating fault vector...\n");
+    dprintf("  set fvector[0] = -1\n");
+    dprintf("  set i = -1\n");
     fvector[0] = -1;
     i = -1;
 
     for(j = 1; j < word_length; j++)
     {
-#ifdef DEBUG
-        printf("-------------\n");
-        printf("    j = %d\n", j);
-        printf("    i = %d\n", i);
-#endif
+        dprintf("-------------\n");
+        dprintf("    j = %d\n", j);
+        dprintf("    i = %d\n", i);
         while (i > -1 && sword[i+1] != sword[j])
         {
-#ifdef DEBUG
-            printf("    set i = fvector[i]: fvector[i] = %d\n", fvector[i]);
-#endif
+            dprintf("    set i = fvector[i]: fvector[i] = %d\n", fvector[i]);
             i = fvector[i];
         }
         if (sword[i+1] == sword[j])
         {
-#ifdef DEBUG
-            printf("    adding one to i\n");
-            printf("    fvector[%d] = %d\n",j,i);
-#endif
+            dprintf("    adding one to i\n");
+            dprintf("    fvector[%d] = %d\n",j,i);
             i = i+1;
             fvector[j] = i;
         }
         else
         {
-#ifdef DEBUG
-            printf("    fvector[%d] = %d\n",j,-1);
-#endif
+            dprintf("    fvector[%d] = %d\n",j,-1);
             fvector[j] = -1;
         }
     }
