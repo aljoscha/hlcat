@@ -3,7 +3,7 @@
 
     hlcat is distributed under the following BSD-style license:  
 
-    Copyright (c) 2009, Aljoscha Krettek
+    Copyright (c) 2009, Aljoscha Krettek <aljoscha.krettek@googlemail.com>
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -67,8 +67,8 @@ int main(int argc, char **argv)
 
     if (argc != 3)
     {
-        printf("hlcat\nCopyright (c) 2009, by Aljoscha Krettek <aljoscha.krettek@googlemail.com>\n");
-        printf("usage: hlcat <word> <filename>\n");
+        printf("hlcat Copyright (c) 2009, Aljoscha Krettek <aljoscha.krettek@googlemail.com>\n");
+        printf("usage: hlcat <search string> <filename>\n");
         exit(1);
     }
 
